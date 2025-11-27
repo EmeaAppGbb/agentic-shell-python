@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  /* CopilotKit theme customization */
+  --copilot-kit-primary-color: #3b82f6;
+  --copilot-kit-contrast-color: #ffffff;
+  --copilot-kit-background-color: #ffffff;
+  --copilot-kit-secondary-color: #f9fafb;
+  --copilot-kit-secondary-contrast-color: #111827;
+  --copilot-kit-separator-color: #e5e7eb;
+  --copilot-kit-muted-color: #9ca3af;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    
+    /* CopilotKit dark theme */
+    --copilot-kit-primary-color: #60a5fa;
+    --copilot-kit-contrast-color: #1f2937;
+    --copilot-kit-background-color: #1f2937;
+    --copilot-kit-secondary-color: #111827;
+    --copilot-kit-secondary-contrast-color: #f9fafb;
+    --copilot-kit-separator-color: #374151;
+    --copilot-kit-muted-color: #6b7280;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* CopilotKit custom styling */
+.copilotKitSidebar {
+  border-left: 1px solid var(--copilot-kit-separator-color);
+}
+
+.copilotKitMessages {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.copilotKitInput {
+  border-radius: 0.75rem;
+}
+
+.copilotKitUserMessage {
+  border-radius: 1rem;
+  background: var(--copilot-kit-primary-color);
+}
+
+.copilotKitAssistantMessage {
+  border-radius: 1rem;
+}

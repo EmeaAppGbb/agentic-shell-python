@@ -7,73 +7,13 @@ https://github.com/user-attachments/assets/f0529e70-f437-4a14-93bc-4ab5a0450540
 
 ## 🎯 Overview
 
-This repository provides a preconfigured development environment and agent-driven workflow that works in two directions:
-
-- **Greenfield (Build New)**: Transform product ideas into deployed applications through structured specification-driven development
-- **Brownfield (Document Existing + Modernize)**: Reverse engineer existing codebases into comprehensive product and technical documentation and optionally modernize codebases
-
-Both workflows use specialized GitHub Copilot agents working together to maintain consistency, traceability, and best practices.
+This repository provides a preconfigured development environment and agent-driven workflow that takes you from product concept to deployed application through a structured, step-by-step process.
 
 ## 🚀 Quick Start
 
-### Option 1: Use This Repository as a Template (Full Environment)
-
-**Greenfield (New Project)**:
-1. **Use this repo as a template** - Click "Use this template" to create your own GitHub repository
-2. **Open in Dev Container** - Everything is preconfigured in `.devcontainer/`
-3. **Describe your app idea** - The more specific, the better
-4. **Follow the workflow** - Use the prompts to guide specialized agents through each phase
-
-**Brownfield (Existing Codebase)**:
-1. **Use this repo as a template** - Click "Use this template" to create your own GitHub repository
-2. **copy your existing codebase** into the new repository
-3. **Open in Dev Container** - Everything is preconfigured in `.devcontainer/`
-4. **Run `/rev-eng`** - Reverse engineer codebase into specs and documentation
-5. **Run `/modernize`** - (optional) Create modernization plan and tasks
-6. **Run `/plan`** - (optional) Execute modernization tasks planned by the modernization agent
-
-### Option 2: Install Into Existing Project using VSCode Extension
-
-TODO
-
-### Option 3: Install Into Existing Project using APM CLI
-
-TODO
-
-### Option 4: Install Into Existing Project using Manual Script
-
-Transform any existing project into a spec2cloud-enabled development environment:
-
-**One-Line Install** (Recommended):
-```bash
-curl -fsSL https://raw.githubusercontent.com/EmeaAppGbb/spec2cloud/main/scripts/quick-install.sh | bash
-```
-
-**Manual Install**:
-```bash
-# Download latest release
-curl -L https://github.com/EmeaAppGbb/spec2cloud/releases/latest/download/spec2cloud-full-latest.zip -o spec2cloud.zip
-unzip spec2cloud.zip -d spec2cloud
-cd spec2cloud
-
-# Run installer
-./scripts/install.sh --full                    # Linux/Mac
-.\scripts\install.ps1 -Full                    # Windows
-
-# Start using workflows
-code .
-# Use @pm, @dev, @azure agents and /prd, /frd, /plan, /deploy prompts
-```
-
-**What Gets Installed**:
-- ✅ 8 specialized AI agents (PM, Dev Lead, Dev, Azure, Rev-Eng, Modernizer, Planner, Architect)
-- ✅ 13 workflow prompts
-- ✅ MCP server configuration (optional)
-- ✅ Dev container setup (optional)
-- ✅ APM configuration (optional)
-
-See **[INTEGRATION.md](INTEGRATION.md)** for detailed installation options and troubleshooting.
-
+1. **Open in Dev Container** - Everything is preconfigured in `.devcontainer/`
+2. **Describe your app idea** - The more specific, the better
+3. **Follow the workflow** - Use the prompts to guide specialized agents through each phase
 
 ## 🏗️ Architecture
 
@@ -81,6 +21,10 @@ See **[INTEGRATION.md](INTEGRATION.md)** for detailed installation options and t
 
 The `.devcontainer/` folder provides a **ready-to-use development container** with:
 - Python 3.12
+
+
+
+
 - Azure CLI & Azure Developer CLI (azd)
 - TypeScript
 - Docker-in-Docker
@@ -97,7 +41,7 @@ The `.vscode/mcp.json` configures **Model Context Protocol servers** that give a
 
 ### AI Agents (Chat Modes)
 
-six specialized agents in `.github/chatmodes/`:
+Four specialized agents in `.github/chatmodes/`:
 
 #### 1. **PM Agent** (`@pm`) - Product Manager
 - **Model**: o3-mini
@@ -124,24 +68,7 @@ six specialized agents in `.github/chatmodes/`:
 - **Purpose**: Deploys applications to Azure with IaC and CI/CD pipelines
 - **Instructions**: Analyzes codebase, generates Bicep templates, creates GitHub Actions, uses Azure Dev CLI
 
-
-#### 5. **Reverse Engineering Tech Analyst Agent** (`@tech-analist`) - Technical Analyst
-- **Model**: Claude Sonnet 4
-- **Tools**: Code analysis, documentation generation, specification extraction
-- **Purpose**: Reverse engineers existing codebases into specifications and documentation
-- **Instructions**: Analyzes codebase, generates technical tasks, creates feature requirements, synthesizes product vision
-
-
-#### 4. **Modernization Agent** (`@modernize`) - Modernization Specialist
-- **Model**: Claude Sonnet 4
-- **Tools**: Code analysis, modernization planning, risk assessment
-- **Purpose**: Analyzes existing codebases for modernization opportunities and creates implementation plans
-- **Instructions**: Assesses technical debt, crafts modernization strategies, develops risk management plans
-
-
-## 📋 Workflows
-
-### Greenfield Workflow (Forward: Idea → Code)
+## 📋 Workflow
 
 ```mermaid
 graph TB
@@ -179,33 +106,7 @@ graph TB
     style Choice fill:#fff9c4
 ```
 
-### Brownfield Workflow (Reverse: Code → Documentation)
-
-```mermaid
-graph TB
-    StartBrown[("📦 Existing Codebase<br/>Undocumented or<br/>poorly documented")]
-    
-    StartBrown --> Rev-Eng["<b>/rev-eng</b><br/>📋 Reverse Engineering Agent Analyses code<br/>& documents technical tasks"]
-    
-    Rev-Eng --> Modernize["<b>/modernize</b><br/>(Optional)<br/>💻 Modernization Agent Documents<br/>& documents modernization tasks"]
-    
-    Modernize --> Plan["<b>/plan</b><br/>(Optional)<br/>💻 Developer Agent Implements<br/>Modernization tasks"]
-    
-    Plan --> Deploy["<b>/deploy</b><br/>(Optional)<br/>☁️ Azure Agent<br/>creates IaC + deploys to Azure"]
-
-    Deploy --> Done[("✅ Modernized(optional) and documented<br/>Application on Azure")]
-
-    Rev-Eng --> Done
-        
-    style StartBrown fill:#ffe0b2
-    style Rev-Eng fill:#e8f5e9
-    style Modernize fill:#e8f5e9
-    style Plan fill:#e8f5e9
-    style Deploy fill:#f3e5f5
-    style Done fill:#e1f5ff
-```
-
-### Greenfield Workflow Steps (Forward)
+### Workflow Steps
 
 1. **`/prd`** - Product Requirements Document
    - PM Agent engages in conversation to understand the product vision
@@ -238,49 +139,6 @@ graph TB
    - Creates GitHub Actions workflows for CI/CD
    - Deploys to Azure using Azure Dev CLI and MCP tools
 
-### Brownfield Workflow Steps (Reverse)
-
-
-1. **`/rev-eng`** - Reverse Engineer Codebase
-   - Reverse Engineering Agent analyzes existing codebase
-   - Creates technical tasks, feature requirements, and product vision documents
-   - Follows strict rules to ensure accuracy and honesty about existing functionality
-   - **Critical Rules**:
-     - ⚠️ **NEVER modifies code** - Read-only analysis
-     - ⚠️ **Documents ONLY what exists** - No fabrication
-     - ⚠️ **Honest about gaps** - Notes missing tests, incomplete features
-     - Links each task to actual code files and implementations
-
-2. **`/modernize`** - Create Modernization Plan (Optional)
-   - Modernization Agent assesses existing codebase for modernization opportunities
-   - Creates files in `specs/modernize/` with modernization analysis 
-   - Creates files in `specs/tasks/` with specific modernization tasks
-   - Develops risk assessment and mitigation strategies
-   - **Critical Rules**:
-     - ⚠️ **NEVER modifies code** - Read-only analysis
-     - ⚠️ **Evidence-based** - Recommendations based on actual code quality
-     - ⚠️ **Honest about feasibility** - Notes technical debt and potential risks
-
-3. **`/plan`** - Implement Modernization Tasks (Optional)
-   - Dev Agent reads modernization tasks from `specs/tasks/`
-   - Implements modernization tasks in the codebase
-   - Follows best practices and architectural patterns
-
-4. **`/deploy`** - Azure Deployment (Optional)
-   - Azure Agent deploys the modernized application to Azure
-   - Generates updated Bicep IaC templates and CI/CD workflows
-   - Uses Azure Dev CLI and MCP tools for deployment
-
-### Why Use Brownfield Workflow?
-
-- **Onboard new team members** - Comprehensive documentation of existing systems
-- **Legacy system understanding** - Reverse engineer undocumented codebases
-- **Pre-acquisition due diligence** - Document technical assets before purchase
-- **Migration planning** - Understand current state before modernization
-- **Audit and compliance** - Document what the system actually does
-- **Knowledge preservation** - Capture tribal knowledge before team changes
-- **Bridge to modernization** - After documenting, use greenfield workflow to add features
-
 ## 📁 Documentation Structure
 
 The workflow creates living documentation:
@@ -291,58 +149,10 @@ specs/
 ├── features/           # Feature Requirements Documents
 │   ├── feature-1.md
 │   └── feature-2.md
-├── tasks/              # Technical Task Specifications
-│   ├── task-1.md
-│   ├── task-2.md
-│   ├── modernization/          # Modernization-specific tasks
-│   │   ├── dependency-upgrade-*.md # Dependency update tasks
-│   │   ├── architecture-refactor-*.md # Architecture improvement tasks
-│   │   ├── security-remediation-*.md # Security fix tasks
-│   │   └── performance-optimization-*.md # Performance improvement tasks
-│   └── testing/                # Testing and validation tasks
-│       ├── regression-test-*.md # Regression testing tasks
-│       ├── feature-validation-*.md # Feature continuity validation
-│       ├── performance-benchmark-*.md # Performance testing tasks
-│       └── integration-test-*.md # Integration testing tasks
-├── modernize/                    # Modernization strategy and plans
-│   ├── assessment/              # Analysis and assessment reports
-│   │   ├── technical-debt.md    # Technical debt analysis
-│   │   ├── security-audit.md    # Security vulnerabilities and gaps
-│   │   ├── performance-analysis.md # Performance bottlenecks and issues
-│   │   ├── architecture-review.md # Architecture assessment
-│   │   └── compliance-gaps.md   # Compliance and standards gaps
-│   ├── strategy/                # Modernization strategies
-│   │   ├── roadmap.md          # Overall modernization roadmap
-│   │   ├── technology-upgrade.md # Technology modernization plan
-│   │   ├── architecture-evolution.md # Architecture improvement plan
-│   │   ├── security-enhancement.md # Security modernization strategy
-│   │   └── devops-transformation.md # DevOps and operational improvements
-│   ├── plans/                   # Detailed implementation plans
-│   │   ├── migration-plan.md    # Step-by-step migration approach
-│   │   ├── testing-strategy.md  # Comprehensive testing approach
-│   │   ├── rollback-procedures.md # Rollback and contingency plans
-│   │   └── validation-criteria.md # Success criteria and validation
-│   └── risk-management/         # Risk assessment and mitigation
-│       ├── risk-analysis.md     # Risk identification and assessment
-│       ├── mitigation-strategies.md # Risk mitigation approaches
-│       └── contingency-plans.md # Emergency procedures and fallbacks
-└── docs/                 # Technical Documentation
-    ├── architecture/     # Architecture documentation
-    │   ├── overview.md   # System overview and context
-    │   ├── components.md # Component architecture
-    │   └── patterns.md   # Design patterns and conventions
-    ├── technology/       # Technology stack documentation
-    │   ├── stack.md      # Complete technology inventory
-    │   ├── dependencies.md # Dependencies and versions
-    │   └── tools.md      # Development and build tools
-    ├── infrastructure/   # Infrastructure and deployment
-    │   ├── deployment.md # Deployment architecture
-    │   ├── environments.md # Environment configuration
-    │   └── operations.md # Operational procedures
-    └── integration/      # External integrations
-        ├── apis.md       # External API integrations
-        ├── databases.md  # Database schemas and models
-        └── services.md   # External service dependencies
+└── tasks/              # Technical Task Specifications
+    ├── task-1.md
+    └── task-2.md
+
 src/
 ├── backend/            # Backend implementation
 └── frontend/           # Frontend implementation
@@ -444,8 +254,6 @@ apm compile
 
 ## 🎓 Example Usage
 
-### Greenfield Example (New Project)
-
 ```bash
 # Start with your product idea
 "I want to create a smart AI agent for elderly care that tracks vitals and alerts caregivers"
@@ -472,42 +280,8 @@ apm compile
 /deploy
 ```
 
-### Brownfield Example (Existing Project)
-
-```bash
-# You have an existing codebase with minimal or outdated documentation
-"I inherited a marketing campaign management app built in Python/React"
-
-# Step 1: Reverse engineer technical tasks from code
-/plan-brown
-# Agent analyzes codebase (Python FastAPI backend, React frontend)
-# Creates specs/tasks/ with honest documentation of what exists
-# Notes: "Task 008: Email service - stub only, not fully implemented"
-
-# Step 2: Synthesize feature requirements from tasks
-/frd-brown
-# Agent groups tasks into product features
-# Creates specs/features/campaign-management.md, user-authentication.md, etc.
-# Notes: "Email notifications feature - partially implemented"
-
-# Step 3: Create product vision from features
-/prd-brown
-# Agent synthesizes overall product purpose
-# Creates specs/prd.md with goals, scope, user stories
-# Includes "Product Status Assessment" with gaps and recommendations
-
-# Result: Complete documentation traceability
-# PRD → FRDs → Tasks → Code (with file paths)
-
-# Optional: Now enhance using greenfield workflow
-/frd  # Add new features to existing FRDs
-/plan # Create tasks for new features
-/implement # Build the enhancements
-```
-
 ## 🔑 Key Benefits
 
-### Greenfield Benefits
 - **Zero Setup** - Dev container has everything preconfigured
 - **Structured Process** - Clear workflow from idea to production
 - **AI-Powered** - Specialized agents handle different aspects
@@ -516,21 +290,6 @@ apm compile
 - **Composable** - Add only the standards you need (Python, React, .NET, etc.)
 - **Versioned** - Lock to specific standard versions or use latest
 - **Azure-Ready** - Automated IaC and CI/CD generation
-
-### Brownfield Benefits
-- **Comprehensive Documentation** - Reverse engineer complete product docs from code
-- **Full Traceability** - Every product requirement links to code implementation
-- **Honest Assessment** - Identifies gaps, missing tests, incomplete features
-- **Technology Agnostic** - Works with any language/framework (.NET, Python, Node.js, Java, etc.)
-- **Knowledge Capture** - Preserves understanding before team changes
-- **Bridge to Modernization** - Document current state, then enhance with greenfield workflow
-- **Onboarding Accelerator** - New developers understand system architecture quickly
-
-### Universal Benefits
-- **Living Documentation** - Specs evolve with the codebase
-- **Bidirectional Workflow** - Start with idea OR start with code
-- **Specialized Agents** - PM, Dev, Dev Lead, and Azure agents with distinct roles
-- **Evidence-Based** - Brownfield never fabricates, greenfield builds intentionally
 
 ## 📖 Learn More
 
