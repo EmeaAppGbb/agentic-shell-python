@@ -15,8 +15,7 @@ var api = builder.AddUvicornApp("agentic-api", "./src/agentic-api", "main:app")
     .WithUv()
     .WithEnvironment("AZURE_OPENAI_ENDPOINT", openAiEndpoint)
     .WithEnvironment("AZURE_OPENAI_DEPLOYMENT_NAME", openAiDeployment)
-    .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health");
+    .WithExternalHttpEndpoints();
 
 builder.AddJavaScriptApp("agentic-ui", "./src/agentic-ui")
     .WithRunScript("dev")
