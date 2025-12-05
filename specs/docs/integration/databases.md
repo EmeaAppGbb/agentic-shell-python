@@ -420,107 +420,11 @@ def delete_conversation(conversation_id: str, user_id: str):
 **Conversation Continuity**: Not supported
 **Scalability**: Limited (memory-bound)
 
----
-
-### Recommended Strategy: Cosmos DB Persistence
-
-**Implementation Steps**:
-
-1. **Install SDK**:
-   ```toml
-   # pyproject.toml
-   dependencies = [
-     "azure-cosmos>=4.5.0",
-     # ... other deps
-   ]
-   ```
-
-2. **Initialize Client** (`src/agentic-api/main.py`):
-   ```python
-   from azure.cosmos import CosmosClient
-   from azure.identity import DefaultAzureCredential
-
-   cosmos_client = CosmosClient(
-       url=os.environ["AZURE_COSMOS_ENDPOINT"],
-       credential=DefaultAzureCredential()
-   )
-   cosmos_db = cosmos_client.get_database_client("agentic-storage")
-   cosmos_container = cosmos_db.get_container_client("conversations")
-   ```
-
-3. **Integrate with Agent**:
-   - Store conversation ID in agent context
-   - Persist user messages before sending to OpenAI
-   - Persist assistant responses after receiving from OpenAI
-   - Load conversation history on subsequent requests
-
-4. **Add Conversation Management Endpoints**:
-   - `GET /conversations` - List user's conversations
-   - `GET /conversations/{id}` - Get specific conversation
-   - `DELETE /conversations/{id}` - Delete conversation
 
 ---
 
-## Alternative Data Storage Options
 
-### Option 1: Azure Table Storage
 
-**Pros**:
-- Cheaper than Cosmos DB (~$0.045/GB vs $0.25/GB)
-- Simple key-value storage
-- Good for low-latency reads
-
-**Cons**:
-- Limited query capabilities
-- No complex queries (JOIN, ORDER BY, etc.)
-- Less scalable than Cosmos DB
-
-**Best For**: Simple key-value storage, cost-sensitive applications
-
----
-
-### Option 2: Azure Blob Storage
-
-**Pros**:
-- Cheapest option (~$0.018/GB)
-- Unlimited storage
-- Good for large objects
-
-**Cons**:
-- No querying (must list blobs)
-- Not suitable for transactional data
-- Higher latency
-
-**Best For**: Archival, large file storage, cold data
-
----
-
-### Option 3: Azure SQL Database
-
-**Pros**:
-- Relational model (ACID transactions)
-- Complex queries (JOINs, aggregations)
-- Familiar SQL syntax
-
-**Cons**:
-- More expensive than Cosmos DB serverless
-- Less scalable for global distribution
-- Fixed schema (less flexible)
-
-**Best For**: Relational data, complex queries, existing SQL expertise
-
----
-
-### Recommendation: Stick with Cosmos DB
-
-**Why**:
-- Already provisioned
-- Serverless tier (pay per request, no minimum cost)
-- NoSQL flexibility (schema evolution)
-- Global distribution (future scalability)
-- Managed identity authentication (secure)
-
----
 
 ## Data Retention & Lifecycle
 
@@ -528,39 +432,9 @@ def delete_conversation(conversation_id: str, user_id: str):
 
 **Data Lifecycle**: N/A (no data stored)
 
----
-
-### Recommended Lifecycle Policy
-
-**Active Conversations**:
-- **Retention**: Keep indefinitely (user data)
-- **Status**: `active`
-
-**Archived Conversations**:
-- **Trigger**: User archives conversation
-- **Retention**: Keep for 90 days, then delete
-- **Status**: `archived`
-
-**Deleted Conversations**:
-- **Trigger**: User deletes conversation
-- **Retention**: Soft delete for 30 days (recovery period), then hard delete
-- **Status**: `deleted`
-
-**Implementation** (Azure Function with Timer Trigger):
-```python
-import azure.functions as func
-from datetime import datetime, timedelta
-
-def main(mytimer: func.TimerRequest):
-    cutoff_date = (datetime.utcnow() - timedelta(days=30)).isoformat() + "Z"
-    query = f"SELECT * FROM c WHERE c.status = 'deleted' AND c.updated < '{cutoff_date}'"
-    
-    items = container.query_items(query=query, enable_cross_partition_query=True)
-    for item in items:
-        container.delete_item(item=item['id'], partition_key=item['userId'])
-```
 
 ---
+
 
 ## Data Security
 
@@ -716,91 +590,15 @@ AzureDiagnostics
 
 ### Current: No Database Tests
 
----
-
-### Recommended Tests
-
-**Unit Tests** (mock Cosmos client):
-```python
-from unittest.mock import MagicMock
-
-def test_create_conversation():
-    mock_container = MagicMock()
-    mock_container.create_item.return_value = {"id": "conv-123"}
-    
-    result = create_conversation("user-123", "my_agent")
-    assert result["id"] == "conv-123"
-    mock_container.create_item.assert_called_once()
-```
-
-**Integration Tests** (use Cosmos emulator):
-```python
-import pytest
-from azure.cosmos import CosmosClient
-
-@pytest.fixture
-def cosmos_client():
-    # Use Cosmos DB Emulator
-    return CosmosClient(
-        url="https://localhost:8081",
-        credential="C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-    )
-
-def test_conversation_lifecycle(cosmos_client):
-    # Create conversation
-    conversation = create_conversation("user-test", "my_agent")
-    assert conversation["userId"] == "user-test"
-    
-    # Add message
-    add_message(conversation["id"], "user-test", "user", "Hello")
-    
-    # Retrieve conversation
-    retrieved = get_conversation(conversation["id"], "user-test")
-    assert len(retrieved["messages"]) == 1
-```
 
 ---
 
-## Migration Path
 
-### Step 1: Add SDK and Client Initialization
-**Status**: Not done
-**Effort**: 1-2 hours
 
-### Step 2: Implement Conversation Persistence
-**Status**: Not done
-**Effort**: 1-2 days
 
-### Step 3: Add Conversation Management Endpoints
-**Status**: Not done
-**Effort**: 1-2 days
-
-### Step 4: Update Frontend to Use Conversations
-**Status**: Not done
-**Effort**: 2-3 days
-
-### Step 5: Add Tests and Monitoring
-**Status**: Not done
-**Effort**: 1-2 days
-
-**Total Effort**: ~1-2 weeks
-
----
-
-## Conclusion
+## Summary
 
 ### Current State
 **Database**: Provisioned but unused
 **Persistence**: None (in-memory only)
 **Conversation History**: Not supported
-
-### Production Readiness: **0%** (infrastructure ready, no implementation)
-
-### Recommendations
-1. **Implement Persistence**: Connect to Cosmos DB, store conversations
-2. **Add Conversation Management**: Create, read, update, delete endpoints
-3. **Optimize Queries**: Use single-partition queries, projection
-4. **Add Lifecycle Policy**: Archive old conversations, clean up deleted data
-5. **Monitor RU Usage**: Set up alerts for unexpected RU consumption
-
-**Priority**: **High** - Conversation history is critical for multi-turn AI interactions.

@@ -250,18 +250,10 @@ prompt = f"Context: {context}\n\nQuestion: {user_query}"
 - **Storage**: 2 GB included
 - **Documents**: 15 million per index
 
-**Status**: Paying for unused service (~$73/month wasted)
+**Status**: Provisioned but unused (~$73/month cost)
 
 ---
 
-#### Recommendation
-
-**Options**:
-1. **Remove**: Delete if RAG not needed (save $73/month)
-2. **Implement RAG**: Add document indexing and search
-3. **Downgrade**: Use Free tier if testing (50 MB, 10k documents)
-
----
 
 ### 4. Azure Cosmos DB
 
@@ -713,27 +705,14 @@ except Exception as e:
 
 ---
 
-### Recovery Strategies
+### Current Configuration
 
-**Azure OpenAI**:
-- **Failover**: Deploy second OpenAI account in different region
-- **Routing**: Use Azure Traffic Manager or API Management
-- **RTO**: ~1 hour (manual failover)
-- **RPO**: 0 (stateless)
-
-**Container Apps**:
-- **Failover**: Deploy to second region
-- **Routing**: Azure Front Door or Traffic Manager
-- **RTO**: ~1 hour (manual)
-- **RPO**: 0 (stateless)
-
-**Cosmos DB**:
-- **Multi-Region**: Enable multi-region writes
-- **Automatic Failover**: Configure automatic failover
-- **RTO**: Minutes (automatic)
-- **RPO**: Seconds (eventual consistency)
+**Single Region**: All services deployed in one region
+**Risk**: Regional outage affects all services
+**Recovery**: Manual redeployment required
 
 ---
+
 
 ## Compliance & Governance
 
@@ -758,17 +737,12 @@ except Exception as e:
 - ❌ No Azure Key Vault (not required for current setup)
 
 **Network Security**:
-- ❌ Public endpoints (no private endpoints)
-- ❌ No network isolation (services accessible from internet)
+- Public endpoints (no private endpoints)
+- No network isolation (services accessible from internet)
 - ✅ HTTPS for external traffic
 
-**Recommendations**:
-1. Add Azure Virtual Network (VNet)
-2. Use Private Endpoints for all services
-3. Configure Network Security Groups (NSGs)
-4. Add Azure Firewall or Application Gateway (WAF)
-
 ---
+
 
 ## Cost Optimization
 
@@ -794,95 +768,33 @@ except Exception as e:
 
 ---
 
-### Optimization Recommendations
-
-1. **Remove Unused Services**: Delete AI Search, Cosmos DB if not needed → Save $74/month
-2. **Scale Down**: Use smaller Container Apps SKU if traffic low → Save $40/month
-3. **Reserved Capacity**: Commit to 1-year OpenAI reserved capacity → Save 20-30%
-4. **Optimize Model**: Use cheaper model (gpt-4o-mini instead of gpt-5-mini) → Save 50%
-
-**Optimized Cost**: **$150-200/month** (48-58% reduction)
-
 ---
 
-## Service Limits
 
-### Azure OpenAI
 
-**TPM Limit**: 100,000 tokens/minute
-**Concurrent Requests**: No explicit limit (within TPM)
-**Max Tokens per Request**: Model-dependent (gpt-5-mini: 8k context)
 
-**If Exceeded**: Request fails with `429 Too Many Requests`
+## Summary
 
----
+### Service Dependencies
 
-### Container Apps
-
-**Replicas**: 10 max (configured)
-**Concurrent Requests per Replica**: ~50
-**Total Concurrent Requests**: ~500
-
-**If Exceeded**: New requests queued or rejected (503)
-
----
-
-### Cosmos DB
-
-**RU/s Limit**: Unlimited (serverless)
-**Storage**: Unlimited
-**Document Size**: 2 MB max
-
-**If Exceeded**: Request fails with `413 Entity Too Large`
-
----
-
-## Conclusion
-
-### Active Dependencies
-
-**Essential**:
-- ✅ Azure OpenAI (core AI service)
-- ✅ Azure Container Apps (hosting)
-- ✅ Azure Container Registry (deployments)
-- ✅ Application Insights (monitoring)
-- ✅ Managed Identity (security)
+**Active Services**:
+- Azure OpenAI (core AI service)
+- Azure Container Apps (hosting)
+- Azure Container Registry (deployments)
+- Application Insights (monitoring)
+- Managed Identity (security)
 
 **Provisioned but Unused**:
-- ⚠️ Cosmos DB (conversation persistence, not implemented)
-- ⚠️ Azure AI Search (RAG, not implemented)
-- ⚠️ Azure AI Foundry (evaluation, not integrated)
+- Cosmos DB (conversation persistence, not implemented)
+- Azure AI Search (RAG, not implemented)
+- Azure AI Foundry (evaluation, not integrated)
 
----
+### Current State
 
-### Production Readiness: **60%**
-
-**Strengths**:
-- Core AI functionality working
-- Secure authentication (managed identity)
+**Infrastructure**:
+- Core AI functionality operational
+- Managed identity authentication
 - Monitoring and logging enabled
-
-**Weaknesses**:
-- Wasted resources ($74/month unused)
-- Single region (no DR)
-- Public endpoints (no network isolation)
-- No health checks or alerting configured
-
----
-
-### Immediate Actions
-
-**Priority 1 (Cost Savings)**:
-1. Delete Azure AI Search if RAG not planned
-2. Delete Cosmos DB if conversation history not planned
-3. Optimize Container Apps SKU
-
-**Priority 2 (Reliability)**:
-4. Configure health checks on Container Apps
-5. Set up alerting for critical errors and rate limits
-6. Test failover scenarios
-
-**Priority 3 (Security)**:
-7. Add VNet and private endpoints
-8. Configure network security groups
-9. Add API authentication
+- Single region deployment
+- Public endpoints
+- Unused resources provisioned

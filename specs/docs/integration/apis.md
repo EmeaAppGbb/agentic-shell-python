@@ -155,24 +155,19 @@ curl -X POST https://agentic-api.example.com/ \
 **Current**: None
 **CORS Protection**: Restricts requests to frontend origin only
 
-**Production Recommendation**:
-- Add API key authentication
-- Implement Azure AD bearer token validation
-- Add rate limiting per authenticated user
-
 ---
+
 
 ### Rate Limiting
 
 **Current**: Not implemented
 
-**Potential Limits**:
+**Existing Limits**:
 - Azure OpenAI: Rate limited by Azure quota (TPM, RPM)
 - Container Apps: No explicit throttling
 
-**Recommendation**: Implement application-level rate limiting (e.g., 100 requests/minute per IP/user)
-
 ---
+
 
 ## Frontend API (Next.js)
 
@@ -434,36 +429,17 @@ results = search_client.search(search_text="query", top=5)
 **Current**: No versioning
 **URL Pattern**: No `/v1/` or version indicators
 
-**Production Recommendation**:
-- Implement API versioning (e.g., `/api/v1/agent`)
-- Support multiple versions simultaneously
-- Deprecation policy for old versions
-
 ---
+
 
 ## API Documentation Generation
 
 **Current Status**: No OpenAPI/Swagger specification
 
-**Recommendations**:
-1. Generate OpenAPI spec for backend API
-2. Use FastAPI automatic docs (available at `/docs` and `/redoc`)
-3. Add request/response examples
-4. Document error codes
-
-**FastAPI Docs** (Not Explicitly Enabled):
-```python
-app = fastapi.FastAPI(
-    title="Agentic API",
-    description="AI Agent backend powered by Azure OpenAI",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json"
-)
-```
+**FastAPI Built-in Docs**: Available at `/docs` and `/redoc` (if enabled)
 
 ---
+
 
 ## Request/Response Examples
 
@@ -578,14 +554,8 @@ Content-Type: application/json
 ❌ **Rate Limiting**: None
 ❌ **Input Validation**: Minimal (framework defaults)
 
-### Production Recommendations
-1. **Add Authentication**: Azure AD B2C or API keys
-2. **Implement Authorization**: Role-based access control
-3. **Add Rate Limiting**: Per user/IP throttling
-4. **Input Validation**: Length limits, content filtering
-5. **API Gateway**: Azure API Management for centralized security
-
 ---
+
 
 ## Monitoring & Logging
 
@@ -622,23 +592,7 @@ requests
 
 ---
 
-## API Evolution & Roadmap
 
-### Near-Term Enhancements
-1. **OpenAPI Specification**: Generate formal API docs
-2. **Authentication**: Add user authentication
-3. **Streaming**: Implement streaming responses
-4. **Error Codes**: Standardized error code system
-
-### Long-Term Vision
-5. **GraphQL**: Alternative API interface
-6. **WebSocket**: Real-time bidirectional communication
-7. **File Upload**: Support document/image inputs
-8. **Batch Processing**: Handle multiple messages
-9. **Webhooks**: Push notifications for async operations
-10. **API Gateway**: Centralized management and security
-
----
 
 ## Testing APIs
 
@@ -647,55 +601,21 @@ requests
 **Integration Tests**: None
 **Load Tests**: None
 
-### Recommended Testing
-
-**Unit Tests**:
-```python
-def test_agent_endpoint():
-    response = client.post("/", json={"message": "test"})
-    assert response.status_code == 200
-    assert "response" in response.json()
-```
-
-**Integration Tests**:
-```python
-def test_openai_integration():
-    # Mock or use test OpenAI deployment
-    response = client.post("/", json={"message": "Hello"})
-    assert "Hello" in response.json()["response"].lower()
-```
-
-**Load Tests** (k6):
-```javascript
-import http from 'k6/http';
-
-export default function () {
-  http.post('https://api.example.com/', JSON.stringify({
-    message: 'Test message'
-  }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-```
-
 ---
 
-## Conclusion
 
-The API is **simple and functional** but **lacks production-grade features**:
+## Summary
 
-**Strengths**:
-- Clean RPC-style design
+**Current API Implementation**:
+- RPC-style design
 - AG-UI protocol abstraction
 - CORS security
 - Monitoring integration
 
-**Weaknesses**:
+**Gaps**:
 - No formal API documentation (OpenAPI)
 - No authentication or authorization
 - No rate limiting
 - No API versioning
 - Limited error handling
 - No streaming responses
-
-**Production Readiness**: **40%** - Core API works but needs authentication, documentation, and production features.
