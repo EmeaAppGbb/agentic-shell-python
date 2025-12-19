@@ -1,8 +1,6 @@
 
 # APM dependencies
 apm_modules/
-**/AGENTS.md
-AGENTS.md
 .apm
 .azure
 
