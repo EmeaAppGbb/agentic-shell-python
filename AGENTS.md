@@ -6,9 +6,9 @@ AI coding agent instructions for agentic-shell-python.
 
 | Aspect | Details |
 |--------|---------|
-| **Stack** | Python 3.11+ FastAPI backend, Next.js 16/React 19 frontend with CopilotKit |
+| **Stack** | Python 3.11+ FastAPI backend, Next.js 16/React 19 frontend |
 | **Infra** | Azure Container Apps, OpenAI (gpt-5-mini), Cosmos DB, AI Search (unused) |
-| **Status** | 50% production-ready: ❌ No auth, ❌ No tests, ❌ No rate limiting |
+| **Status** | Starter template - use skills to add AI agent capabilities |
 | **Cost** | ~$309/month ($74 wasted on unused Cosmos DB + AI Search) |
 
 ## Quick Start
@@ -39,13 +39,24 @@ AZURE_OPENAI_DEPLOYMENT_NAME=gpt5MiniDeployment
 AGENT_API_URL=http://localhost:8080
 ```
 
+## Agent Skills
+
+This repository includes skills for adding AI agent capabilities:
+
+| Skill | Purpose |
+|-------|---------|
+| `.github/skills/ms-agent-framework` | Add Microsoft Agent Framework to Python backend |
+| `.github/skills/ag-ui-integration` | Connect frontend to backend with AG-UI protocol |
+
+To add AI agent capabilities, follow the instructions in these skills.
+
 ## Key Files
 
 | Path | Purpose |
 |------|---------|
-| `src/agentic-api/main.py` | FastAPI + Agent Framework endpoint at `/` |
-| `src/agentic-ui/app/page.tsx` | CopilotSidebar UI |
-| `src/agentic-ui/app/api/copilotkit/route.ts` | BFF proxy to backend |
+| `src/agentic-api/main.py` | FastAPI application (starter template) |
+| `src/agentic-ui/app/page.tsx` | React page component |
+| `src/agentic-ui/app/layout.tsx` | Root layout |
 | `infra/main.bicep` | Subscription-scoped IaC entry point |
 | `infra/resources.bicep` | Container Apps, Cosmos DB, AI Search |
 | `apphost.cs` | .NET Aspire orchestration |
@@ -53,10 +64,10 @@ AGENT_API_URL=http://localhost:8080
 ## Architecture
 
 ```
-Browser → Next.js (/api/copilotkit) → FastAPI (/) → Azure OpenAI
+Browser → Next.js → FastAPI → (Add agent with skills)
 ```
 
-- **BFF Pattern**: Frontend proxies to backend via CopilotKit runtime
+- **Starter Template**: No AI agent by default - use skills to add
 - **Auth**: Azure Managed Identity (no secrets in code)
 - **Stateless**: No conversation persistence (Cosmos DB provisioned but unused)
 
@@ -90,15 +101,14 @@ azd provision   # Infrastructure only
 **Python dependency**: Add to `pyproject.toml`, run `uv pip install -e .`
 **Node dependency**: `npm install <package>`
 **Azure resource**: Add to `infra/resources.bicep`, run `azd provision`
-**API endpoint**: Add to `src/agentic-api/main.py` (don't modify `/` - managed by agent framework)
+**API endpoint**: Add routes to `src/agentic-api/main.py`
 
 ## Debugging
 
 | Issue | Solution |
 |-------|----------|
-| `AZURE_OPENAI_ENDPOINT not set` | Create `.env` file |
+| Build failures | Check `uv pip install -e .` and `npm install` |
 | `DefaultAzureCredential failed` | Run `az login` |
-| `AGENT_API_URL undefined` | Create `.env.local` with `AGENT_API_URL=http://localhost:8080` |
 | `429 Too Many Requests` | Wait 1 min or increase OpenAI quota |
 
 **Logs**: `az containerapp logs show --name agentic-api --resource-group ${ENV}-rg --follow`
