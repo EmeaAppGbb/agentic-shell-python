@@ -4,44 +4,24 @@ import logging
 import fastapi
 import telemetry
 
-import os
-
-from agent_framework import ChatAgent
-from agent_framework.azure import AzureOpenAIChatClient
-from agent_framework_ag_ui import add_agent_framework_fastapi_endpoint
-from azure.identity import AzureCliCredential
-
-# Read required configuration
-endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
-deployment_name = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME")
-
-if not endpoint:
-    raise ValueError("AZURE_OPENAI_ENDPOINT environment variable is required")
-if not deployment_name:
-    raise ValueError("AZURE_OPENAI_DEPLOYMENT_NAME environment variable is required")
-
-chat_client = AzureOpenAIChatClient(
-    credential=AzureCliCredential(),
-    endpoint=endpoint,
-    deployment_name=deployment_name,    
-)
-
-# Create the AI agent
-agent = ChatAgent(
-    name="AGUIAssistant",
-    instructions="You are a helpful assistant.",
-    chat_client=chat_client,
-)
 
 @contextlib.asynccontextmanager
-async def lifespan(app):
+async def lifespan(app: fastapi.FastAPI):
     telemetry.configure_opentelemetry()
     yield
 
 
 app = fastapi.FastAPI(lifespan=lifespan)
-
-# Register the AG-UI endpoint
-add_agent_framework_fastapi_endpoint(app, agent, "/")
-
 logger = logging.getLogger(__name__)
+
+
+@app.get("/")
+async def root():
+    """Health check endpoint."""
+    return {"status": "healthy", "message": "Agentic API is running"}
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint for container orchestration."""
+    return {"status": "healthy"}
